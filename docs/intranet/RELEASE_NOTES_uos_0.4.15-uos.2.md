@@ -1,4 +1,4 @@
-# OpenViking UOS 离线介质 0.4.15-uos.1
+# OpenViking UOS 离线介质 0.4.15-uos.2
 
 面向 UOS / Debian 兼容 Linux x86_64 的容器化离线交付。
 

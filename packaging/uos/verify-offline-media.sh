@@ -34,7 +34,13 @@ CONTAINER="openviking-uos-offline-smoke-$$"
 TMP_DIR="$(mktemp -d)"
 cleanup() {
   docker rm -f "${CONTAINER}" >/dev/null 2>&1 || true
-  rm -rf -- "${TMP_DIR}"
+  # The image runs as root and its native vector engine creates root-owned
+  # files on the bind mount. Make those files removable by the host runner
+  # before the EXIT trap returns; cleanup must never turn a passing smoke into
+  # a false failure.
+  docker run --rm --network none --entrypoint /bin/chmod \
+    -v "${TMP_DIR}:/cleanup" "${IMAGE}" -R a+rwX /cleanup >/dev/null 2>&1 || true
+  rm -rf -- "${TMP_DIR}" || true
 }
 trap cleanup EXIT
 

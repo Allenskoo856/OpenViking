@@ -91,5 +91,5 @@ jobs:
             dist/SHA256SUMS \
             --repo "${GITHUB_REPOSITORY}" \
             --title "OpenViking UOS offline ${tag#uos-offline-v}" \
-            --notes-file docs/intranet/RELEASE_NOTES_uos_0.4.15-uos.1.md \
+            --notes-file docs/intranet/RELEASE_NOTES_uos_0.4.15-uos.2.md \
             --verify-tag

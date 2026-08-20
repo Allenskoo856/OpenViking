@@ -1,6 +1,6 @@
 services:
   openviking:
-    image: ${OPENVIKING_IMAGE:-openviking-uos:0.4.15-uos.1}
+    image: ${OPENVIKING_IMAGE:-openviking-uos:0.4.15-uos.2}
     container_name: openviking-uos
     restart: unless-stopped
     env_file:

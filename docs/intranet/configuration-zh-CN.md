@@ -1,6 +1,6 @@
 # OpenViking UOS 内网配置手册
 
-本文说明离线介质中的 `.env`、`ov.conf`、`ovcli.conf` 和网络策略。配置以 OpenViking `0.4.15`、离线介质 `0.4.15-uos.1` 为准。
+本文说明离线介质中的 `.env`、`ov.conf`、`ovcli.conf` 和网络策略。配置以 OpenViking `0.4.15`、离线介质 `0.4.15-uos.2` 为准。
 
 ## 1. 文件与优先级
 
@@ -20,7 +20,7 @@
 ### 容器和监听
 
 ```dotenv
-OPENVIKING_IMAGE=openviking-uos:0.4.15-uos.1
+OPENVIKING_IMAGE=openviking-uos:0.4.15-uos.2
 OPENVIKING_BIND_ADDRESS=127.0.0.1
 OPENVIKING_HOST_PORT=1933
 OPENVIKING_DATA_DIR=/var/lib/openviking

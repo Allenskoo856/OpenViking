@@ -1,6 +1,6 @@
 # OpenViking UOS 内网离线安装部署手册
 
-本文对应 `openviking-uos-offline-0.4.15-uos.1-linux-amd64` 离线介质。目标是让 UOS / Debian 兼容的 x86_64 服务器在安装阶段不访问公网，并让 OpenViking 只访问经过批准的企业内网模型服务。
+本文对应 `openviking-uos-offline-0.4.15-uos.2-linux-amd64` 离线介质。目标是让 UOS / Debian 兼容的 x86_64 服务器在安装阶段不访问公网，并让 OpenViking 只访问经过批准的企业内网模型服务。
 
 ## 1. 交付范围
 
@@ -45,8 +45,8 @@ OpenViking 的语义处理需要 Embedding 和 VLM。离线介质解决“程序
 从 fork 的 GitHub Release 下载：
 
 ```text
-openviking-uos-offline-0.4.15-uos.1-linux-amd64.tar.gz
-openviking-uos-offline-0.4.15-uos.1-linux-amd64.manifest.json
+openviking-uos-offline-0.4.15-uos.2-linux-amd64.tar.gz
+openviking-uos-offline-0.4.15-uos.2-linux-amd64.manifest.json
 SHA256SUMS
 ```
 
@@ -73,8 +73,8 @@ df -h /var/lib /opt
 
 ```bash
 sha256sum -c --strict SHA256SUMS
-tar -xzf openviking-uos-offline-0.4.15-uos.1-linux-amd64.tar.gz
-cd openviking-uos-offline-0.4.15-uos.1-linux-amd64
+tar -xzf openviking-uos-offline-0.4.15-uos.2-linux-amd64.tar.gz
+cd openviking-uos-offline-0.4.15-uos.2-linux-amd64
 ./verify-offline-media.sh
 ```
 
