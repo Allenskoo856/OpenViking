@@ -13,7 +13,7 @@ services:
       OPENVIKING_ALLOWED_HOSTS: ${OPENVIKING_ALLOWED_HOSTS:-}
       OPENVIKING_ALLOWED_CIDRS: ${OPENVIKING_ALLOWED_CIDRS:-}
     ports:
-      - "${OPENVIKING_BIND_ADDRESS:-127.0.0.1}:${OPENVIKING_SERVER_PORT:-1933}:1933"
+      - "${OPENVIKING_BIND_ADDRESS:-127.0.0.1}:${OPENVIKING_HOST_PORT:-1933}:1933"
     volumes:
       - ${OPENVIKING_DATA_DIR:-/var/lib/openviking}:/app/.openviking
     extra_hosts:
