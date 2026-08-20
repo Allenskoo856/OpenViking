@@ -1,0 +1,95 @@
+name: Build and release UOS offline media
+
+on:
+  push:
+    tags:
+      - "uos-offline-v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing uos-offline-v* tag to publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uos-offline-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-verify-release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Resolve release tag
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            tag="${{ inputs.release_tag }}"
+          fi
+          [[ "${tag}" == uos-offline-v* ]] || { echo "Invalid tag: ${tag}" >&2; exit 2; }
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+      - name: Check out tagged source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+      - name: Validate release tag and source
+        shell: bash
+        run: |
+          set -euo pipefail
+          source packaging/uos/release.env
+          expected="uos-offline-v${UOS_RELEASE}"
+          [[ "${{ steps.release.outputs.tag }}" == "${expected}" ]] || {
+            echo "Tag must be ${expected}" >&2
+            exit 2
+          }
+          bash -n packaging/build-uos-offline-media.sh packaging/uos/*.sh
+          python3 packaging/uos/tests/test_runtime_policy.py -v
+      - name: Build offline media
+        shell: bash
+        run: packaging/build-uos-offline-media.sh dist
+      - name: Verify packaged archive with no network
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$(find dist -maxdepth 1 -name '*.tar.gz' -print -quit)"
+          test -n "${archive}"
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf -- "${temp_dir}"' EXIT
+          tar -C "${temp_dir}" -xzf "${archive}"
+          media_dir="$(find "${temp_dir}" -mindepth 1 -maxdepth 1 -type d -print -quit)"
+          "${media_dir}/verify-offline-media.sh" --docker-smoke
+          install_dir="${temp_dir}/installed"
+          data_dir="${temp_dir}/data"
+          "${media_dir}/install-offline.sh" --install-dir "${install_dir}" --data-dir "${data_dir}"
+          printf '\npreserve-me\n' >> "${data_dir}/ov.conf"
+          "${media_dir}/install-offline.sh" --install-dir "${install_dir}" --data-dir "${data_dir}"
+          tail -n 1 "${data_dir}/ov.conf" | grep -Fx "preserve-me"
+          test -f "${install_dir}/manifest.json"
+          test -n "$(find "${temp_dir}" -maxdepth 1 -type d -name 'installed.backup.*' -print -quit)"
+      - name: Publish durable GitHub Release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${{ steps.release.outputs.tag }}"
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            echo "Release ${tag} already exists; refusing to overwrite" >&2
+            exit 2
+          fi
+          gh release create "${tag}" \
+            dist/*.tar.gz \
+            dist/*.manifest.json \
+            dist/SHA256SUMS \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "OpenViking UOS offline ${tag#uos-offline-v}" \
+            --notes-file docs/intranet/RELEASE_NOTES_uos_0.4.15-uos.1.md \
+            --verify-tag

@@ -1,0 +1,33 @@
+services:
+  openviking:
+    image: ${OPENVIKING_IMAGE:-openviking-uos:0.4.15-uos.1}
+    container_name: openviking-uos
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      OPENVIKING_CONFIG_FILE: /app/.openviking/ov.conf
+      OPENVIKING_CLI_CONFIG_FILE: /app/.openviking/ovcli.conf
+      OPENVIKING_WITH_BOT: "0"
+      OPENVIKING_NETWORK_MODE: ${OPENVIKING_NETWORK_MODE:-intranet}
+      OPENVIKING_ALLOWED_HOSTS: ${OPENVIKING_ALLOWED_HOSTS:-}
+      OPENVIKING_ALLOWED_CIDRS: ${OPENVIKING_ALLOWED_CIDRS:-}
+    ports:
+      - "${OPENVIKING_BIND_ADDRESS:-127.0.0.1}:${OPENVIKING_SERVER_PORT:-1933}:1933"
+    volumes:
+      - ${OPENVIKING_DATA_DIR:-/var/lib/openviking}:/app/.openviking
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 1024
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    healthcheck:
+      test: ["CMD", "/opt/openviking-uos/openviking-uos-entrypoint.sh", "--healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s

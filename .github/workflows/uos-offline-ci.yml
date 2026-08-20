@@ -1,0 +1,46 @@
+name: UOS offline delivery CI
+
+on:
+  pull_request:
+    paths:
+      - "packaging/uos/**"
+      - "packaging/build-uos-offline-media.sh"
+      - "docs/intranet/**"
+      - ".github/workflows/uos-offline-*.yml"
+      - "README_CN.md"
+  push:
+    branches:
+      - "agent/uos-offline-delivery"
+    paths:
+      - "packaging/uos/**"
+      - "packaging/build-uos-offline-media.sh"
+      - "docs/intranet/**"
+      - ".github/workflows/uos-offline-*.yml"
+      - "README_CN.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Validate scripts and policy tests
+        run: |
+          set -euo pipefail
+          bash -n packaging/build-uos-offline-media.sh packaging/uos/*.sh
+          sh -n packaging/uos/runtime/openviking-uos-entrypoint.sh
+          python3 -m py_compile packaging/uos/runtime/*.py packaging/uos/runtime/git
+          python3 packaging/uos/tests/test_runtime_policy.py -v
+      - name: Validate documentation and release constants
+        run: |
+          set -euo pipefail
+          source packaging/uos/release.env
+          test -s docs/intranet/offline-deployment-zh-CN.md
+          test -s docs/intranet/configuration-zh-CN.md
+          grep -Fq "${UOS_RELEASE}" packaging/uos/config/.env.example
+          grep -Fq "${UOS_RELEASE}" packaging/uos/docker-compose.yml
+          grep -Fq "${UOS_RELEASE}" docs/intranet/offline-deployment-zh-CN.md

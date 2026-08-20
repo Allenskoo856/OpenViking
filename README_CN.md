@@ -31,6 +31,8 @@
 
 ## OpenViking 是什么
 
+> UOS / Debian 10 兼容的内网离线交付：参见 [安装部署手册](docs/intranet/offline-deployment-zh-CN.md) 和 [配置手册](docs/intranet/configuration-zh-CN.md)。离线介质由本 fork 的 GitHub Actions 构建并发布到 Release。
+
 OpenViking 是面向 AI 智能体的开源上下文数据库。记忆、资源、技能统一存放在 `viking://` 协议下的虚拟文件系统里，智能体用 `ls`、`tree`、`find` 浏览自己的上下文，不必去查一个黑盒向量库。内容写入时会处理成三层——L0 摘要、L1 概览、L2 详情——按需加载。每次检索都留下轨迹，可以查看，也可以调试。完整介绍见[入门文档](https://docs.openviking.ai/zh/getting-started/01-introduction)。
 
 [![OpenViking Studio playground](docs/images/studio-playground.png)](https://openviking.ai/studio)
